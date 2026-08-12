@@ -152,6 +152,12 @@ function plot.render(body)
     if spec.yDomain then options.yAxis = { domain = spec.yDomain } end
     local ok, err = pcall(function() plot.fp.render(options) end)
     if ok then
+      local svgEl = container.querySelector("svg")
+      if svgEl then
+        svgEl.setAttribute("viewBox", "0 0 620 360")
+        svgEl.removeAttribute("width")
+        svgEl.removeAttribute("height")
+      end
       svg = container.innerHTML
     else
       table.insert(errors, "function-plot failed: " .. tostring(err))
@@ -188,6 +194,13 @@ codeWidget.define {
 /* d3 axes use currentColor; inherit the page text color in both themes. */
 .fplot .function-plot text {
   fill: currentColor;
+}
+/* The bundle writes stroke="black" on axes and origin lines; the existing
+   opacity attributes keep them subtle in both themes. */
+.fplot .function-plot .axis path,
+.fplot .function-plot .axis line,
+.fplot .function-plot path.origin {
+  stroke: currentColor;
 }
 .fplot-caption {
   display: flex;
