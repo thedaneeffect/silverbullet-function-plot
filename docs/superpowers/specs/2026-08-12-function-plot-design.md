@@ -80,7 +80,16 @@ Below the SVG, one caption line per curve:
 Equations are typed in calculator syntax, not LaTeX. The vendored
 asciimath2tex module converts each equation to a TeX string:
 `new AsciiMathParser().parse(equation)`. AsciiMath handles fractions,
-function-name escaping, and exponents.
+function-name escaping, and exponents. Verified on 2026-08-12 against the
+KaTeX build in the space: 27 representative expressions parse and render.
+
+Some function-plot names are not AsciiMath names and typeset wrong without
+help. Apply this alias rewrite to the equation text before conversion:
+
+- `atan` to `arctan`, `asin` to `arcsin`, `acos` to `arccos`
+- `PI` to `pi`, `E` to `e` (outside other identifiers)
+- `nthRoot(x, n)` to `root(n)(x)`
+- `sign(x)` to `"sign"(x)` (AsciiMath quotes render as upright text)
 
 Known caveat: the plot and the caption parse the equation with two different
 grammars. function-plot evaluates it, AsciiMath typesets it. The two agree on
