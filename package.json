@@ -1,0 +1,16 @@
+{
+  "name": "silverbullet-function-plot",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SilverBullet library: plot equations with function-plot, captioned with KaTeX",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/smoke.mjs && lua test/parse_test.lua"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "function-plot": "^1.25.4",
+    "mathjs": "^15.2.0"
+  }
+}
