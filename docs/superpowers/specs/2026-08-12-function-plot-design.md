@@ -45,9 +45,13 @@ Example:
   - `Function-Plot.md`: the library page. It holds all Space Lua code and the
     space-style block.
   - `Function-Plot/function-plot.mjs`: vendored function-plot ES module build.
-  - `Function-Plot/asciimath2tex.mjs`: vendored asciimath2tex ES module
-    (Apache-2.0, christianp/asciimath2tex). It converts calculator syntax to
-    TeX for the captions.
+  - `Function-Plot/mathjs-parse.mjs`: vendored single-file ES module built
+    from mathjs (Apache-2.0). It exports `parse`, and `parse(expr).toTex()`
+    converts calculator syntax to TeX for the captions. About 670 KB
+    minified, in line with the 610 KB `katex.mjs` already in the space.
+  - `package.json` and a build script. The script regenerates the vendored
+    bundle with esbuild: entry `export { parse } from 'mathjs'`, flags
+    `--bundle --minify --format=esm`. The bundled artifact is committed.
   - `Function-Plot Demo.md`: demo and manual test page.
   - `README.md`: what it is, install steps, syntax reference, screenshot.
 - The library page carries frontmatter in the space convention: `name:
@@ -77,22 +81,19 @@ Below the SVG, one caption line per curve:
   curve index.
 - The equation, rendered by `latex.katex.renderToString`.
 
-Equations are typed in calculator syntax, not LaTeX. The vendored
-asciimath2tex module converts each equation to a TeX string:
-`new AsciiMathParser().parse(equation)`. AsciiMath handles fractions,
-function-name escaping, and exponents. Verified on 2026-08-12 against the
-KaTeX build in the space: 27 representative expressions parse and render.
+Equations are typed in calculator syntax, not LaTeX. The vendored mathjs
+module converts each equation to a TeX string: `parse(equation).toTex()`.
+Verified on 2026-08-12 against the KaTeX build in the space: 27
+representative expressions parse and render. mathjs knows the function-plot
+names natively: `atan` typesets as tan to the power -1, `nthRoot(x, 3)` as a
+cube root, and `log` as ln, which matches function-plot's natural-log
+semantics.
 
-Some function-plot names are not AsciiMath names and typeset wrong without
-help. Apply this alias rewrite to the equation text before conversion:
-
-- `atan` to `arctan`, `asin` to `arcsin`, `acos` to `arccos`
-- `PI` to `pi`, `E` to `e` (outside other identifiers)
-- `nthRoot(x, n)` to `root(n)(x)`
-- `sign(x)` to `"sign"(x)` (AsciiMath quotes render as upright text)
+One cosmetic alias before conversion: rewrite the constant `PI` to `pi`, or
+mathjs typesets it as the two letters P and I.
 
 Known caveat: the plot and the caption parse the equation with two different
-grammars. function-plot evaluates it, AsciiMath typesets it. The two agree on
+grammars. function-plot evaluates it, mathjs typesets it. The two agree on
 the calculator subset. A mismatch only affects the caption, not the curve.
 
 Fallbacks:
