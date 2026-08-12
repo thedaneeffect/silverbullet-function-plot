@@ -45,6 +45,9 @@ Example:
   - `Function-Plot.md`: the library page. It holds all Space Lua code and the
     space-style block.
   - `Function-Plot/function-plot.mjs`: vendored function-plot ES module build.
+  - `Function-Plot/asciimath2tex.mjs`: vendored asciimath2tex ES module
+    (Apache-2.0, christianp/asciimath2tex). It converts calculator syntax to
+    TeX for the captions.
   - `Function-Plot Demo.md`: demo and manual test page.
   - `README.md`: what it is, install steps, syntax reference, screenshot.
 - The library page carries frontmatter in the space convention: `name:
@@ -74,17 +77,18 @@ Below the SVG, one caption line per curve:
   curve index.
 - The equation, rendered by `latex.katex.renderToString`.
 
-Equations are typed in calculator syntax, not LaTeX. A small converter
-produces LaTeX for the caption:
+Equations are typed in calculator syntax, not LaTeX. The vendored
+asciimath2tex module converts each equation to a TeX string:
+`new AsciiMathParser().parse(equation)`. AsciiMath handles fractions,
+function-name escaping, and exponents.
 
-- Backslash-escape known function names: sin, cos, tan, log, ln, sqrt, and
-  the other names function-plot supports.
-- Convert `*` to `\cdot`.
-- Pass `^` exponents through. Wrap multi-character exponents in braces.
+Known caveat: the plot and the caption parse the equation with two different
+grammars. function-plot evaluates it, AsciiMath typesets it. The two agree on
+the calculator subset. A mismatch only affects the caption, not the curve.
 
 Fallbacks:
 
-- If KaTeX throws on the converted string, show the raw equation as code text.
+- If the conversion or KaTeX throws, show the raw equation as code text.
 - If the `latex` namespace is absent, show all captions as code text. The plot
   still renders.
 
