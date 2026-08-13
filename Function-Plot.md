@@ -66,8 +66,13 @@ end
 -- It unwraps `default` only when default is the sole export; our bundles
 -- export named functions too, so we always get the namespace with .render
 -- and .exprToTex (see client/space_lua/stdlib/js.ts in the SilverBullet repo).
-plot.fp = js.importFromSpace("Library/dane/Function-Plot/function-plot.mjs")
-plot.math = js.importFromSpace("Library/dane/Function-Plot/mathjs-parse.mjs")
+local ok, err = pcall(function()
+  plot.fp = js.importFromSpace("Library/dane/Function-Plot/function-plot.mjs")
+  plot.math = js.importFromSpace("Library/dane/Function-Plot/mathjs-parse.mjs")
+end)
+if not ok then
+  plot.importError = tostring(err)
+end
 
 function plot.escapeHtml(s)
   return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
@@ -108,6 +113,16 @@ function plot.captionHtml(curves)
 end
 
 function plot.render(body)
+  if plot.importError then
+    return widget.new {
+      display = "block",
+      html = '<div class="fplot">' .. plot.errorBox({
+        "Function-Plot modules failed to load: " .. plot.importError,
+        "Check that Library/dane/Function-Plot/ contains the .mjs bundles."
+      }) .. "</div>"
+    }
+  end
+
   local spec = plot.parse(body)
   local errors = spec.errors
 
