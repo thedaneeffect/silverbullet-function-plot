@@ -139,7 +139,7 @@ function plot.render(body)
   local good = {}
   for _, c in ipairs(curves) do
     local probe = doc.createElement("div")
-    local ok = pcall(function()
+    local ok, perr = pcall(function()
       plot.fp.render {
         target = probe, width = 120, height = 80,
         data = { { fn = c.fn, nSamples = 24 } }
@@ -148,7 +148,7 @@ function plot.render(body)
     if ok then
       table.insert(good, c)
     else
-      table.insert(errors, "Cannot plot: " .. c.fn)
+      table.insert(errors, "Cannot plot: " .. c.fn .. " — " .. tostring(perr))
     end
   end
 
@@ -181,7 +181,8 @@ function plot.render(body)
     table.insert(errors, "No equations found in plot block")
   end
 
-  local html = '<div class="fplot">' .. svg .. plot.captionHtml(good)
+  local html = '<div class="fplot"><div class="fplot-main">'
+    .. plot.captionHtml(good) .. svg .. "</div>"
   if #errors > 0 then
     html = html .. plot.errorBox(errors)
   end
@@ -201,8 +202,16 @@ codeWidget.define {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
+  padding: 0.6em;
 }
-.fplot svg {
+.fplot-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75em;
+}
+.fplot svg.function-plot {
+  flex: 1 1 auto;
+  min-width: 0;
   max-width: 100%;
   height: auto;
 }
@@ -218,14 +227,24 @@ codeWidget.define {
   stroke: currentColor;
 }
 .fplot-caption {
+  flex: 0 1 16em;
+  min-width: 8em;
   display: flex;
   flex-direction: column;
-  gap: 0.25em;
+  gap: 0.4em;
+  align-self: stretch;
+  padding-right: 0.6em;
+  border-right: 1px solid rgba(128, 128, 128, 0.35);
+}
+.fplot-caption:empty {
+  display: none;
 }
 .fplot-caption-line {
   display: flex;
   align-items: center;
   gap: 0.5em;
+  white-space: nowrap;
+  overflow-x: auto;
 }
 .fplot-swatch {
   width: 0.9em;
