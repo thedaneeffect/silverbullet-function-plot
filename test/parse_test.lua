@@ -35,13 +35,30 @@ local function eq(got, want, msg)
   end
 end
 
--- Bare equations and y= stripping
+-- Bare equations and y= stripping (explicit curves)
 local r = plot.parse("y = sin(x) / x\nx^2 / 10\n")
 eq(#r.curves, 2, "curve count")
-eq(r.curves[1], "sin(x) / x", "y= stripped")
-eq(r.curves[2], "x^2 / 10", "bare line kept")
+eq(r.curves[1].fn, "sin(x) / x", "y= stripped")
+eq(r.curves[1].lhs, nil, "explicit has no lhs")
+eq(r.curves[2].fn, "x^2 / 10", "bare line kept")
 eq(#r.errors, 0, "no errors")
 eq(r.xDomain, nil, "no x domain")
+
+-- Implicit curves split at the first =
+r = plot.parse("x^2 / (x + y) = 50\n")
+eq(#r.curves, 1, "one implicit curve")
+eq(r.curves[1].fn, "(x^2 / (x + y)) - (50)", "implicit fn")
+eq(r.curves[1].lhs, "x^2 / (x + y)", "implicit lhs")
+eq(r.curves[1].rhs, "50", "implicit rhs")
+
+-- Parenthesized rhs and inner operators survive
+r = plot.parse("x^2 + y^2 = (2 + 3)\n")
+eq(r.curves[1].fn, "(x^2 + y^2) - ((2 + 3))", "parens preserved")
+
+-- y = stays explicit even with y on the right
+r = plot.parse("y = x + 1\n")
+eq(r.curves[1].fn, "x + 1", "y= explicit")
+eq(r.curves[1].lhs, nil, "y= not implicit")
 
 -- Domains, floats, negatives, whitespace
 r = plot.parse("sin(x)\nx: [-6.5, 6.5]\n y : [ -1.5 , 2 ] \n")
@@ -61,7 +78,8 @@ eq(#r.curves, 1, "curves survive bad domain")
 eq(#r.errors, 2, "two bad domain lines")
 eq(r.xDomain, nil, "bad domain not set")
 
--- A z: line is not a directive; it falls through as an equation attempt
+-- A z: line is not a directive; it falls through as an implicit attempt is wrong —
+-- it has no =, so it stays an explicit curve attempt
 r = plot.parse("z: [1, 2]\n")
 eq(#r.curves, 1, "z line treated as equation")
 

@@ -55,7 +55,23 @@ function plot.parse(body)
         table.insert(result.errors,
           "Bad domain line: " .. trimmed .. " (expected form: x: [-10, 10])")
       else
-        table.insert(result.curves, trimmed:match("^y%s*=%s*(.+)$") or trimmed)
+        local expr = trimmed:match("^y%s*=%s*(.+)$")
+        if expr then
+          table.insert(result.curves, { fn = expr })
+        else
+          local lhs, rhs = trimmed:match("^([^=]+)=%s*(.+)$")
+          if lhs and rhs then
+            lhs = lhs:match("^%s*(.-)%s*$")
+            rhs = rhs:match("^%s*(.-)%s*$")
+            table.insert(result.curves, {
+              fn = "(" .. lhs .. ") - (" .. rhs .. ")",
+              lhs = lhs,
+              rhs = rhs
+            })
+          else
+            table.insert(result.curves, { fn = trimmed })
+          end
+        end
       end
     end
   end
@@ -99,7 +115,13 @@ function plot.captionHtml(curves)
     local body
     if latex and latex.katex then
       local ok, html = pcall(function()
-        return latex.katex.renderToString(plot.math.exprToTex(c.fn), {
+        local tex
+        if c.lhs then
+          tex = plot.math.exprToTex(c.lhs) .. " = " .. plot.math.exprToTex(c.rhs)
+        else
+          tex = plot.math.exprToTex(c.fn)
+        end
+        return latex.katex.renderToString(tex, {
           throwOnError = true,
           displayMode = false
         })
@@ -107,7 +129,11 @@ function plot.captionHtml(curves)
       if ok then body = html end
     end
     if not body then
-      body = "<code>" .. plot.escapeHtml(c.fn) .. "</code>"
+      local raw = c.fn
+      if c.lhs then
+        raw = c.lhs .. " = " .. c.rhs
+      end
+      body = "<code>" .. plot.escapeHtml(raw) .. "</code>"
     end
     table.insert(lines,
       '<div class="fplot-caption-line">'
@@ -132,11 +158,17 @@ function plot.render(body)
   local errors = spec.errors
 
   local curves = {}
-  for i, eq in ipairs(spec.curves) do
-    table.insert(curves, {
-      fn = eq,
+  for i, c in ipairs(spec.curves) do
+    local datum = {
+      fn = c.fn,
       color = plot.PALETTE[(i - 1) % #plot.PALETTE + 1]
-    })
+    }
+    if c.lhs then
+      datum.fnType = "implicit"
+      datum.lhs = c.lhs
+      datum.rhs = c.rhs
+    end
+    table.insert(curves, datum)
   end
 
   -- Probe each curve alone, so one bad equation does not take down the block.
@@ -147,7 +179,7 @@ function plot.render(body)
     local ok, perr = pcall(function()
       plot.fp.render {
         target = probe, width = 120, height = 80,
-        data = { { fn = c.fn, nSamples = 24 } }
+        data = { { fn = c.fn, fnType = c.fnType, nSamples = 24 } }
       }
     end)
     if ok then
