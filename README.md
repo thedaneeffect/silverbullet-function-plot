@@ -5,6 +5,8 @@ fenced code blocks as graphs with
 [function-plot](https://mauriciopoppe.github.io/function-plot/). A KaTeX
 caption below each graph shows the equations, color-matched to the curves.
 
+<img width="973" height="468" alt="image" src="https://github.com/user-attachments/assets/e35cde41-6c1a-4ba4-bfbc-10c73ead754e" />
+
 ## Syntax
 
     ```plot
@@ -32,10 +34,8 @@ function-plot pan and zoom do not work. Pin the region with `x:` and `y:`.
 
 ## Install
 
-1. Copy `Function-Plot.md` to `Library/dane/Function-Plot.md` in your space.
-2. Copy the `Function-Plot/` directory to `Library/dane/Function-Plot/`.
-3. Copy `Function-Plot Demo.md` anywhere, if you want the demo.
-4. Run the `System: Reload` command.
+1. Install by URI: `https://github.com/thedaneeffect/silverbullet-function-plot/blob/main/Function-Plot.md`
+2. Run the `System: Reload` command.
 
 Captions need the
 [Silverbullet-Math](https://github.com/MrMugame/silverbullet-math) library
