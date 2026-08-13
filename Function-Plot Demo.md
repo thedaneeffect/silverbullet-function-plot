@@ -41,3 +41,17 @@ y = sin(x)
 y = flurble(x)
 x: [banana, 2]
 ```
+
+Two variables: iso-damage contours. Each curve is the set of
+(attack, defense) pairs that produce one damage value, with x as attack
+and y as defense. The smooth form plots cleanly. A `floor(...)` version
+makes degenerate step contours, so keep the floor in the game code and
+out of the plot:
+
+```plot
+x^2 / (x + y) = 25
+x^2 / (x + y) = 50
+x^2 / (x + y) = 100
+x: [0, 200]
+y: [0, 300]
+```

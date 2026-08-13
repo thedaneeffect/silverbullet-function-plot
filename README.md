@@ -18,6 +18,15 @@ Each bare line is one curve, in calculator syntax. The `y =` prefix is
 optional. `x: [a, b]` and `y: [a, b]` pin the axis domains. Without them,
 function-plot picks the domains.
 
+A line of the form `lhs = rhs` (left side other than `y`) plots the
+implicit curve `lhs - rhs = 0` in the two variables `x` and `y`:
+
+    ```plot
+    x^2 / (x + y) = 50
+    x: [0, 200]
+    y: [0, 300]
+    ```
+
 Plots are static SVG. SilverBullet sanitizes widget HTML, so the
 function-plot pan and zoom do not work. Pin the region with `x:` and `y:`.
 

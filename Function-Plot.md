@@ -17,11 +17,15 @@ captions fall back to plain code text.
 
 ## Syntax
 Each bare line is one curve, in calculator syntax. The `y =` prefix is
-optional. `x: [a, b]` and `y: [a, b]` lines pin the axis domains.
+optional for explicit curves. A line of the form `lhs = rhs` (where the
+left side is not `y`) plots the implicit curve `lhs - rhs = 0` in the
+two variables `x` and `y`. `x: [a, b]` and `y: [a, b]` lines pin the
+axis domains.
 
     ```plot
     y = sin(x) / x
     y = x^2 / 10
+    x^2 + y^2 = 4
     x: [-10, 10]
     y: [-2, 2]
     ```

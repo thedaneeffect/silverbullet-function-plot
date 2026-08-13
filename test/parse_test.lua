@@ -78,8 +78,7 @@ eq(#r.curves, 1, "curves survive bad domain")
 eq(#r.errors, 2, "two bad domain lines")
 eq(r.xDomain, nil, "bad domain not set")
 
--- A z: line is not a directive; it falls through as an implicit attempt is wrong —
--- it has no =, so it stays an explicit curve attempt
+-- A z: line has no =, so it stays an explicit curve attempt
 r = plot.parse("z: [1, 2]\n")
 eq(#r.curves, 1, "z line treated as equation")
 
