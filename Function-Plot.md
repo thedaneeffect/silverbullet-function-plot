@@ -74,8 +74,13 @@ if not ok then
   plot.importError = tostring(err)
 end
 
+-- Space Lua cannot chain a method call onto a multi-value return
+-- (s:gsub():gsub() crashes), so assign step by step.
 function plot.escapeHtml(s)
-  return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
+  s = s:gsub("&", "&amp;")
+  s = s:gsub("<", "&lt;")
+  s = s:gsub(">", "&gt;")
+  return s
 end
 
 function plot.errorBox(errors)
